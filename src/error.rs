@@ -5,6 +5,7 @@ use sensirion_i2c::i2c;
 /// SCD4X errors
 #[derive(Debug, PartialEq)]
 #[cfg_attr(feature = "thiserror", derive(thiserror::Error))]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum Error<E> {
     #[cfg_attr(feature = "thiserror", error("I2C: {0}"))]
     /// I²C bus error
