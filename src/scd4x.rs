@@ -4,7 +4,7 @@ use hal::i2c::I2c;
 
 use crate::commands::Command;
 use crate::error::Error;
-use crate::types::{RawSensorData, SensorData};
+use crate::types::{RawSensorData, SensorData, SensorVariant};
 use sensirion_i2c::{crc8, i2c};
 
 const SCD4X_I2C_ADDRESS: u8 = 0x62;
@@ -205,6 +205,15 @@ where
     pub fn reinit(&mut self) -> Result<(), Error<E>> {
         self.write_command(Command::Reinit)?;
         Ok(())
+    }
+
+    /// Reads out the SCD4x sensor variant (e.g. SCD40 or SCD41)
+    pub fn sensor_variant(&mut self) -> Result<SensorVariant, Error<E>> {
+        let mut buf = [0; 3];
+        self.delayed_read_cmd(Command::GetSensorVariant, &mut buf)?;
+        let value = u16::from_be_bytes([buf[0], buf[1]]);
+        let variant = (value & 0xF000) >> 12;
+        Ok( SensorVariant::from(variant) )
     }
 
     /// On-demand measurement of CO₂ concentration, relative humidity and temperature.
